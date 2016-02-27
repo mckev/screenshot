@@ -92,7 +92,7 @@ namespace ScreenShot
             Bitmap screenshot = ScreenShot.DoScreenShot();
             FlashScreen.DoFlashScreen();
 
-            String filename = String.Format("Screen Shot {0}.png", DateTime.Now.ToString("yyyy-MM-dd hh.mm.ss tt"));
+            String filename = String.Format("Screen Shot {0}.png", DateTime.Now.ToString("yyyy-MM-dd HH.mm.ss tt"));
             string filepath = Path.Combine(this.saveLocation, filename);
             screenshot.Save(filepath, ImageFormat.Png);
         }
