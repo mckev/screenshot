@@ -15,8 +15,7 @@ namespace ScreenShot
 {
     public partial class Form1 : Form
     {
-        private string location;
-        private ContextMenu notifyIconContextMenu;
+        private string saveLocation;
 
         public Form1()
         {
@@ -33,7 +32,7 @@ namespace ScreenShot
                 this.Close();
             }
 
-            // Set forms
+            // Set form
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
             this.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             this.MaximizeBox = false;
@@ -42,14 +41,14 @@ namespace ScreenShot
             notifyIcon1.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             notifyIcon1.Text = "Screen Shot";
             // Ref: http://www.codeproject.com/Articles/2099/Adding-tray-icons-and-context-menus
-            notifyIconContextMenu = new ContextMenu();
+            ContextMenu notifyIconContextMenu = new ContextMenu();
             notifyIconContextMenu.MenuItems.Add(0, new MenuItem("Show", new System.EventHandler(notifyIconShow)));
             notifyIconContextMenu.MenuItems.Add(1, new MenuItem("Exit", new System.EventHandler(notifyIconExit)));
             notifyIcon1.ContextMenu = notifyIconContextMenu;
 
-            // Location
-            this.location = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-            this.locationLabel.Text = this.location;
+            // Set save location
+            this.saveLocation = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+            this.locationLabel.Text = this.saveLocation;
 
             // Start minimized
             this.WindowState = FormWindowState.Minimized;
@@ -94,7 +93,7 @@ namespace ScreenShot
             FlashScreen.DoFlashScreen();
 
             String filename = String.Format("Screen Shot {0}.png", DateTime.Now.ToString("yyyy-MM-dd hh.mm.ss tt"));
-            string filepath = Path.Combine(this.location, filename);
+            string filepath = Path.Combine(this.saveLocation, filename);
             screenshot.Save(filepath, ImageFormat.Png);
         }
     }
@@ -140,8 +139,8 @@ namespace ScreenShot
             SolidBrush b = new SolidBrush(Color.White);
             g.FillRectangle(b, new Rectangle(0, 0, size.cx, size.cy));
             g.Dispose();
-            WIN32_API.InvalidateRect(IntPtr.Zero, IntPtr.Zero, true);
             WIN32_API.ReleaseDC(WIN32_API.GetDesktopWindow(), hDC);
+            WIN32_API.InvalidateRect(IntPtr.Zero, IntPtr.Zero, true);
         }
     }
 
@@ -154,6 +153,7 @@ namespace ScreenShot
 
         public KeyboardHook(int vkCode, Action callback)
         {
+            // Ref: http://forum.cheatengine.org/viewtopic.php?t=192699&sid=d25bb4a9d48a3518bba28ec63d6510a2
             this._vkCode = vkCode;
             this._callback = callback;
             using (Process curProcess = Process.GetCurrentProcess())
@@ -189,8 +189,7 @@ namespace ScreenShot
 
     class WIN32_API
     {
-        // Screen capture API
-        // Ref: http://stackoverflow.com/questions/158151/how-can-i-save-a-screenshot-directly-to-a-file-in-windows
+        // For screen shot
         public struct SIZE
         {
             public int cx;
@@ -234,8 +233,7 @@ namespace ScreenShot
         public static extern IntPtr ReleaseDC(IntPtr hWnd, IntPtr hDc);
 
 
-        // Keyboard hook API
-        // Ref: http://forum.cheatengine.org/viewtopic.php?t=192699&sid=d25bb4a9d48a3518bba28ec63d6510a2
+        // For keyboard hook
         public const int WH_KEYBOARD_LL = 13;
         public const int WM_KEYDOWN = 0x0100;
         public const int VK_INSERT = 0X2D;
@@ -256,7 +254,7 @@ namespace ScreenShot
         public static extern IntPtr GetModuleHandle(string lpModuleName);
 
 
-        // Flash screen
+        // For flash screen
         [DllImport("user32.dll")]
         public static extern bool InvalidateRect(IntPtr hWnd, IntPtr lpRect, bool bErase);
     }
